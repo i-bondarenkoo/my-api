@@ -25,7 +25,9 @@ async def get_list_users_crud(session: AsyncSession, start: int = 0, stop: int =
     return result.scalars().all()
 
 
-async def update_user_patch(user: PatchUpdateUser, user_id: int, session: AsyncSession):
+async def update_user_patch_crud(
+    user: PatchUpdateUser, user_id: int, session: AsyncSession
+):
     update_user = await session.get(UserOrm, user_id)
     if not update_user:
         raise USER_NOT_FOUND_EXCEPTION
@@ -46,4 +48,6 @@ async def delete_user_crud(user_id: int, session: AsyncSession):
         raise USER_NOT_FOUND_EXCEPTION
     await session.delete(user)
     await session.commit()
-    return {"message": "Пользователь успешно удален"}
+    return {
+        "message": "Пользователь успешно удален",
+    }

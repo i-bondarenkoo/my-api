@@ -4,4 +4,5 @@ from app.exceptions import (
     NO_DATA_FOR_UPDATES,
     PROJECT_NOT_FOUND_EXCEPTION,
     ERROR_PAGINATION,
+    TASK_NOT_FOUND,
 )

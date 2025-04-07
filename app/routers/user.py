@@ -71,7 +71,9 @@ async def update_user(
     ],
     session: AsyncSession = Depends(get_db_session),
 ):
-    return await crud.update_user_patch(user=user, user_id=user_id, session=session)
+    return await crud.update_user_patch_crud(
+        user=user, user_id=user_id, session=session
+    )
 
 
 @router.delete("/{user_id}")

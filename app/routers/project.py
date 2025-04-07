@@ -1,5 +1,5 @@
 from operator import gt
-from app.schemas.project import CreateProject, ResponseProject
+from app.schemas.project import CreateProject, ResponseProject, PatchUpdateProject
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, APIRouter, Body, Path, Query
 from app.core.database import get_db_session
@@ -52,3 +52,29 @@ async def get_list_projects(
     if not list_projects:
         raise LIST_PROJECTS_NOT_FOUND_EXCEPTION
     return list_projects
+
+
+@router.patch("/{project_id}", response_model=ResponseProject)
+async def update_project(
+    project: Annotated[
+        PatchUpdateProject,
+        Body(
+            description="Колонки таблицы, в которых нужно обновить информацию о проекте"
+        ),
+    ],
+    project_id: Annotated[
+        int, Path(description="ID проекта, в котором нужно внести изменения")
+    ],
+    session: AsyncSession = Depends(get_db_session),
+):
+    return await crud.update_project_patch_crud(
+        project=project, project_id=project_id, session=session
+    )
+
+
+@router.delete("/{project_id}")
+async def delete_project(
+    project_id: Annotated[int, Path(description="ID проекта, который удаляем")],
+    session: AsyncSession = Depends(get_db_session),
+):
+    return await crud.delete_project_crud(project_id=project_id, session=session)
