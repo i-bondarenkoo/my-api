@@ -3,7 +3,6 @@ from app.exceptions import USER_NOT_FOUND_EXCEPTION, NO_DATA_FOR_UPDATES
 from app.schemas.user import CreateUser, PatchUpdateUser
 from app.models.user import UserOrm
 from sqlalchemy import select
-from fastapi import HTTPException, status
 
 
 async def create_user_crud(user_in: CreateUser, session: AsyncSession):
@@ -35,7 +34,7 @@ async def update_user_patch_crud(
     # проверка что пользователь передал какие-то данные для обновления
     if not data:
         raise NO_DATA_FOR_UPDATES
-    for key, value in user.model_dump(exclude_unset=True).items():
+    for key, value in data.items():
         setattr(update_user, key, value)
     await session.commit()
     await session.refresh(update_user)
@@ -43,10 +42,10 @@ async def update_user_patch_crud(
 
 
 async def delete_user_crud(user_id: int, session: AsyncSession):
-    user = await get_user_by_id(user_id=user_id, session=session)
-    if not user:
+    current_user = await session.get(UserOrm, user_id)
+    if not current_user:
         raise USER_NOT_FOUND_EXCEPTION
-    await session.delete(user)
+    await session.delete(current_user)
     await session.commit()
     return {
         "message": "Пользователь успешно удален",

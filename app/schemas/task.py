@@ -17,7 +17,7 @@ class ResponseTask(CreateTask):
 
 class PartialUpdateTask(BaseModel):
     title: str | None = None
-    description: str
-    status: str
+    description: str | None = None
+    status: str | None = None
     user_id: int | None = None
     project_id: int | None = None

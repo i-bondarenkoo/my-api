@@ -72,12 +72,6 @@ async def update_task(
     task_id: Annotated[int, Path(description="ID задачи, которую нужно обновить")],
     session: AsyncSession = Depends(get_db_session),
 ):
-    update_task = await get_task_by_id_crud(task_id, session)
-    if not update_task:
-        raise TASK_NOT_FOUND
-    data = task.model_dump(exclude_unset=True)
-    if not data:
-        raise NO_DATA_FOR_UPDATES
     return await crud.update_task_partial_crud(
         task=task, task_id=task_id, session=session
     )
@@ -88,7 +82,4 @@ async def delete_task(
     task_id: Annotated[int, Path(description="ID задачи, которую нужно удалить")],
     session: AsyncSession = Depends(get_db_session),
 ):
-    current_task = await get_task_by_id(task_id, session)
-    if not current_task:
-        raise TASK_NOT_FOUND
     return await crud.delete_task_crud(task_id, session)

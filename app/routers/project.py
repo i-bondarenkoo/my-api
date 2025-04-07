@@ -12,7 +12,7 @@ from app.exceptions import (
 )
 
 router = APIRouter(
-    prefix="/project",
+    prefix="/projects",
     tags=["Project"],
 )
 

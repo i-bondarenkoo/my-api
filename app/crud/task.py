@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.task import CreateTask, PartialUpdateTask
 from app.models.task import TaskOrm
 from sqlalchemy import select
+from app.exceptions import NO_DATA_FOR_UPDATES, TASK_NOT_FOUND
 
 
 async def create_task_crud(task: CreateTask, session: AsyncSession):
@@ -27,7 +28,12 @@ async def update_task_partial_crud(
     task: PartialUpdateTask, task_id: int, session: AsyncSession
 ):
     update_task = await session.get(TaskOrm, task_id)
-    for key, value in task.model_dump(exclude_unset=True).items():
+    if not update_task:
+        raise TASK_NOT_FOUND
+    data = task.model_dump(exclude_unset=True)
+    if not data:
+        raise NO_DATA_FOR_UPDATES
+    for key, value in data.items():
         setattr(update_task, key, value)
     await session.commit()
     await session.refresh(update_task)
@@ -36,6 +42,8 @@ async def update_task_partial_crud(
 
 async def delete_task_crud(task_id: int, session: AsyncSession):
     current_task = await session.get(TaskOrm, task_id)
+    if not current_task:
+        raise TASK_NOT_FOUND
     await session.delete(current_task)
     await session.commit()
     return {
