@@ -53,12 +53,11 @@ async def delete_user_crud(user_id: int, session: AsyncSession):
     }
 
 
-# получить пользователя с проектами и задачами
-async def get_user_with_details_crud(user_id: int, session: AsyncSession):
-    user = await get_user_by_id(user_id, session)
-    if not user:
+# Получить пользователя по ID с подгрузкой данных
+async def get_user_with_projects_and_tasks_crud(user_id: int, session: AsyncSession):
+    current_user = await get_user_by_id(user_id, session)
+    if not current_user:
         raise USER_NOT_FOUND_EXCEPTION
-    # подгружаем связи
     stmt = (
         select(UserOrm)
         .where(UserOrm.id == user_id)
@@ -66,6 +65,20 @@ async def get_user_with_details_crud(user_id: int, session: AsyncSession):
             selectinload(UserOrm.tasks),
             selectinload(UserOrm.projects),
         )
+    )
+    result = await session.execute(stmt)
+    return result.scalars().first()
+
+
+# вернуть список проектов в которых участвует пользователь
+async def get_list_projects_for_user_crud(user_id: int, session: AsyncSession):
+    current_user = await get_user_by_id(user_id, session)
+    if not current_user:
+        raise USER_NOT_FOUND_EXCEPTION
+    stmt = (
+        select(UserOrm)
+        .where(UserOrm.id == user_id)
+        .options(selectinload(UserOrm.projects))
     )
     result = await session.execute(stmt)
     return result.scalars().first()

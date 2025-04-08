@@ -2,23 +2,21 @@ from app.schemas.user import (
     CreateUser,
     ResponseUser,
     PatchUpdateUser,
-    ResponseUserWithTaskAndProject,
-    ResponseUserOut,
+    ResponseUserInfo,
+    ResponseUserWithProjects,
 )
 from app.schemas.project import (
     CreateProject,
     ResponseProject,
     PatchUpdateProject,
-    ResponseProjectOut,
-    ResponseProjectWithTasksAndUsers,
+    ResponseProjectWithOutID,
 )
 from app.schemas.task import (
     CreateTask,
     ResponseTask,
     PartialUpdateTask,
-    ResponseTaskOut,
+    ResponseTaskWithOutID,
 )
 
-
-ResponseUserWithTaskAndProject.model_rebuild()
-ResponseProjectWithTasksAndUsers.model_rebuild()
+ResponseUserInfo.model_rebuild()
+ResponseUserWithProjects.model_rebuild()

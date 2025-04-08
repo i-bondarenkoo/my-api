@@ -50,20 +50,3 @@ async def delete_project_crud(project_id: int, session: AsyncSession):
     return {
         "message": "Проект успешно удален",
     }
-
-
-# подгружаем к проекту задачи и участников
-async def get_project_with_details_crud(project_id: int, session: AsyncSession):
-    project = await get_project_by_id_crud(project_id, session)
-    if not project:
-        raise PROJECT_NOT_FOUND_EXCEPTION
-    stmt = (
-        select(ProjectOrm)
-        .where(ProjectOrm.id == project_id)
-        .options(
-            selectinload(ProjectOrm.tasks),
-            selectinload(ProjectOrm.users),
-        )
-    )
-    result = await session.execute(stmt)
-    return result.scalars().first()

@@ -9,10 +9,12 @@ class CreateTask(BaseModel):
     project_id: int
 
 
-class ResponseTaskOut(BaseModel):
+class ResponseTaskWithOutID(BaseModel):
     title: str
     description: str
     status: str
+    user_id: int
+    project_id: int
     model_config = ConfigDict(from_attributes=True)
 
 
