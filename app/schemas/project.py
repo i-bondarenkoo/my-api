@@ -30,7 +30,7 @@ class ResponseProjectWithTasksAndUsers(BaseModel):
     title: str
     description: str
     status: str
-    tasks: "ResponseTaskOut"
+    tasks: list["ResponseTaskOut"]
     users: list["ResponseUserOut"]
 
 

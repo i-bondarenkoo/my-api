@@ -22,7 +22,7 @@ class ProjectOrm(Base):
     )
 
     # 1-n с задачами
-    tasks: Mapped["TaskOrm"] = relationship(
+    tasks: Mapped[list["TaskOrm"]] = relationship(
         "TaskOrm", back_populates="project", cascade="all, delete-orphan"
     )
     # n-n с пользователями
