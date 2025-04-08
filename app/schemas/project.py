@@ -1,4 +1,9 @@
 from pydantic import BaseModel, ConfigDict
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.schemas.task import ResponseTaskOut
+    from app.schemas.user import ResponseUserOut
 
 
 class CreateProject(BaseModel):
@@ -7,10 +12,26 @@ class CreateProject(BaseModel):
     status: str
 
 
+class ResponseProjectOut(BaseModel):
+    title: str
+    description: str | None = None
+    status: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ResponseProject(CreateProject):
     id: int
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ResponseProjectWithTasksAndUsers(BaseModel):
+    title: str
+    description: str
+    status: str
+    tasks: "ResponseTaskOut"
+    users: list["ResponseUserOut"]
 
 
 class PatchUpdateProject(BaseModel):

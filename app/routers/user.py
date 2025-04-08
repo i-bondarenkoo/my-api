@@ -6,7 +6,12 @@ from app.exceptions import (
     LIST_NOT_FOUND_EXCEPTION,
     ERROR_PAGINATION,
 )
-from app.schemas.user import CreateUser, ResponseUser, PatchUpdateUser
+from app.schemas.user import (
+    CreateUser,
+    ResponseUser,
+    PatchUpdateUser,
+    ResponseUserWithTaskAndProject,
+)
 from app import crud
 from typing import Annotated
 from app.exceptions import USER_NOT_FOUND_EXCEPTION
@@ -55,6 +60,16 @@ async def get_list_users(
     if not users:
         raise LIST_NOT_FOUND_EXCEPTION
     return users
+
+
+@router.get("/{user_id}/full-info", response_model=ResponseUserWithTaskAndProject)
+async def get_user_with_details(
+    user_id: Annotated[
+        int, Path(description="ID пользователя для получения полной информации о нем")
+    ],
+    session: AsyncSession = Depends(get_db_session),
+):
+    return await crud.get_user_with_details_crud(user_id=user_id, session=session)
 
 
 @router.patch("/{user_id}", response_model=ResponseUser)

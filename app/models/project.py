@@ -26,6 +26,6 @@ class ProjectOrm(Base):
         "TaskOrm", back_populates="project", cascade="all, delete-orphan"
     )
     # n-n с пользователями
-    users: Mapped["UserOrm"] = relationship(
+    users: Mapped[list["UserOrm"]] = relationship(
         "UserOrm", secondary=secondary_table, back_populates="projects"
     )

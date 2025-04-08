@@ -1,5 +1,10 @@
 from operator import gt
-from app.schemas.project import CreateProject, ResponseProject, PatchUpdateProject
+from app.schemas.project import (
+    CreateProject,
+    ResponseProject,
+    PatchUpdateProject,
+    ResponseProjectWithTasksAndUsers,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, APIRouter, Body, Path, Query
 from app.core.database import get_db_session
@@ -52,6 +57,16 @@ async def get_list_projects(
     if not list_projects:
         raise LIST_PROJECTS_NOT_FOUND_EXCEPTION
     return list_projects
+
+
+@router.get("/{project_id}/full-info", response_model=ResponseProjectWithTasksAndUsers)
+async def get_project_with_details(
+    project_id: Annotated[int, Path(description="ID проекта для вывода информации")],
+    session: AsyncSession = Depends(get_db_session),
+):
+    return await crud.get_project_with_details_crud(
+        project_id=project_id, session=session
+    )
 
 
 @router.patch("/{project_id}", response_model=ResponseProject)

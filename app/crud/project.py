@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.project import ProjectOrm
 from sqlalchemy import select
 from app.exceptions import PROJECT_NOT_FOUND_EXCEPTION, NO_DATA_FOR_UPDATES
+from sqlalchemy.orm import selectinload
 
 
 async def create_project_crud(project_in: CreateProject, session: AsyncSession):
@@ -49,3 +50,20 @@ async def delete_project_crud(project_id: int, session: AsyncSession):
     return {
         "message": "Проект успешно удален",
     }
+
+
+# подгружаем к проекту задачи и участников
+async def get_project_with_details_crud(project_id: int, session: AsyncSession):
+    project = await get_project_by_id_crud(project_id, session)
+    if not project:
+        raise PROJECT_NOT_FOUND_EXCEPTION
+    stmt = (
+        select(ProjectOrm)
+        .where(ProjectOrm.id == project_id)
+        .options(
+            selectinload(ProjectOrm.tasks),
+            selectinload(ProjectOrm.users),
+        )
+    )
+    result = await session.execute(stmt)
+    return result.scalars().first()
