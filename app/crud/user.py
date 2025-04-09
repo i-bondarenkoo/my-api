@@ -71,7 +71,7 @@ async def get_user_with_projects_and_tasks_crud(user_id: int, session: AsyncSess
 
 
 # вернуть список проектов в которых участвует пользователь
-async def get_list_projects_for_user_crud(user_id: int, session: AsyncSession):
+async def get_user_with_projects(user_id: int, session: AsyncSession):
     current_user = await get_user_by_id(user_id, session)
     if not current_user:
         raise USER_NOT_FOUND_EXCEPTION

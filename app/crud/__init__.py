@@ -5,7 +5,7 @@ from app.crud.user import (
     update_user_patch_crud,
     delete_user_crud,
     get_user_with_projects_and_tasks_crud,
-    get_list_projects_for_user_crud,
+    get_user_with_projects,
 )
 from app.crud.project import (
     create_project_crud,
