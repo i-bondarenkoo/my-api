@@ -49,6 +49,17 @@ async def get_user_by_id(
     return user
 
 
+@router.get("/", response_model=list[ResponseUser])
+async def get_list_users(
+    session: AsyncSession = Depends(get_db_session),
+    start: int = Query(0, ge=0, description="Начальный индекс списка пользователей"),
+    stop: int = Query(3, gt=0, description="Конечный индекс списка пользователей"),
+):
+    if start > stop:
+        raise ERROR_PAGINATION
+    return await crud.get_list_users_crud(session=session, start=start, stop=stop)
+
+
 @router.get("/{user_id}/projects", response_model=ResponseUserWithProjects)
 async def get_list_projects_for_user(
     user_id: Annotated[
@@ -73,6 +84,23 @@ async def get_user_with_projects_and_tasks(
 ):
     return await crud.get_user_with_projects_and_tasks_crud(
         user_id=user_id, session=session
+    )
+
+
+@router.patch("/{user_id}", response_model=ResponseUser)
+async def update_user(
+    user: Annotated[
+        PatchUpdateUser, Body(description="Укажите информацию которую нужно обновить")
+    ],
+    user_id: Annotated[
+        int, Path(gt=0, description="ID пользователя, которого нужно обновить")
+    ],
+    session: AsyncSession = Depends(get_db_session),
+):
+    return await crud.update_user_patch_crud(
+        user=user,
+        user_id=user_id,
+        session=session,
     )
 
 
