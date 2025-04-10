@@ -3,6 +3,7 @@ from app.schemas.task import CreateTask, PartialUpdateTask
 from app.models.task import TaskOrm
 from sqlalchemy import select
 from app.exceptions import NO_DATA_FOR_UPDATES, TASK_NOT_FOUND
+from sqlalchemy.orm import selectinload
 
 
 async def create_task_crud(task: CreateTask, session: AsyncSession):
@@ -49,3 +50,19 @@ async def delete_task_crud(task_id: int, session: AsyncSession):
     return {
         "message": "Задача успешно удалена",
     }
+
+
+# вывести задачу с информацией о пользователе
+async def get_task_with_users_crud(task_id: int, session: AsyncSession):
+    current_task = await get_task_by_id_crud(task_id, session)
+    if not current_task:
+        raise TASK_NOT_FOUND
+    stmt = (
+        select(TaskOrm)
+        .where(TaskOrm.id == task_id)
+        .options(
+            selectinload(TaskOrm.user),
+        )
+    )
+    result = await session.execute(stmt)
+    return result.scalars().first()

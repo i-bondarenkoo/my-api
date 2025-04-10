@@ -50,3 +50,35 @@ async def delete_project_crud(project_id: int, session: AsyncSession):
     return {
         "message": "Проект успешно удален",
     }
+
+
+# вывести всех участников проекта
+async def get_users_in_project_crud(project_id: int, session: AsyncSession):
+    current_project = await get_project_by_id_crud(project_id, session)
+    if not current_project:
+        raise PROJECT_NOT_FOUND_EXCEPTION
+    stmt = (
+        select(ProjectOrm)
+        .where(ProjectOrm.id == project_id)
+        .options(
+            selectinload(ProjectOrm.users),
+        )
+    )
+    result = await session.execute(stmt)
+    return result.scalars().one()
+
+
+# вывести все задачи в проекте
+async def get_tasks_in_project_crud(project_id: int, session: AsyncSession):
+    current_project = await get_project_by_id_crud(project_id, session)
+    if not current_project:
+        raise PROJECT_NOT_FOUND_EXCEPTION
+    stmt = (
+        select(ProjectOrm)
+        .where(ProjectOrm.id == project_id)
+        .options(
+            selectinload(ProjectOrm.tasks),
+        )
+    )
+    result = await session.execute(stmt)
+    return result.scalars().one()

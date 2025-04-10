@@ -13,6 +13,8 @@ from app.crud.project import (
     get_list_projects_crud,
     update_project_patch_crud,
     delete_project_crud,
+    get_users_in_project_crud,
+    get_tasks_in_project_crud,
 )
 from app.crud.task import (
     create_task_crud,
@@ -20,6 +22,7 @@ from app.crud.task import (
     get_list_task_crud,
     update_task_partial_crud,
     delete_task_crud,
+    get_task_with_users_crud,
 )
 from app.crud.user_project import (
     get_list_projects_for_user_crud,

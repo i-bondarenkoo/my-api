@@ -2,6 +2,8 @@ from app.schemas.project import (
     CreateProject,
     ResponseProject,
     PatchUpdateProject,
+    ResponseProjectWithUsersInfo,
+    ResponseProjectWithTasksInfo,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, APIRouter, Body, Path, Query
@@ -30,6 +32,20 @@ async def create_project(
     return await crud.create_project_crud(project_in=project_in, session=session)
 
 
+@router.get("/", response_model=list[ResponseProject])
+async def get_list_projects(
+    session: AsyncSession = Depends(get_db_session),
+    start: int = Query(0, ge=0, description="Начальный индекс список"),
+    stop: int = Query(3, gt=0, description="Укажите конечный индекс списка"),
+):
+    if start > stop:
+        raise ERROR_PAGINATION
+    list_projects = await crud.get_list_projects_crud(session, start, stop)
+    if not list_projects:
+        raise LIST_PROJECTS_NOT_FOUND_EXCEPTION
+    return list_projects
+
+
 @router.get("/{project_id}", response_model=ResponseProject)
 async def get_project_by_id(
     project_id: Annotated[
@@ -43,18 +59,24 @@ async def get_project_by_id(
     return project
 
 
-@router.get("/", response_model=list[ResponseProject])
-async def get_list_projects(
+@router.get("/{project_id}/users", response_model=ResponseProjectWithUsersInfo)
+async def get_users_in_project(
+    project_id: Annotated[
+        int, Path(gt=0, description="ID проекта, для  получения списка участников")
+    ],
     session: AsyncSession = Depends(get_db_session),
-    start: int = Query(0, ge=0, description="Начальный индекс список"),
-    stop: int = Query(3, gt=0, description="Укажите конечный индекс списка"),
 ):
-    if start > stop:
-        raise ERROR_PAGINATION
-    list_projects = await crud.get_list_projects_crud(session, start, stop)
-    if not list_projects:
-        raise LIST_PROJECTS_NOT_FOUND_EXCEPTION
-    return list_projects
+    return await crud.get_users_in_project_crud(project_id=project_id, session=session)
+
+
+@router.get("/{project_id}/tasks", response_model=ResponseProjectWithTasksInfo)
+async def get_tasks_in_project(
+    project_id: Annotated[
+        int, Path(gt=0, description="ID проекта, для просмотра списка участников")
+    ],
+    session: AsyncSession = Depends(get_db_session),
+):
+    return await crud.get_tasks_in_project_crud(project_id=project_id, session=session)
 
 
 @router.patch("/{project_id}", response_model=ResponseProject)

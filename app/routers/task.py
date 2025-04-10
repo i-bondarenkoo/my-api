@@ -1,6 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db_session
-from app.schemas.task import CreateTask, ResponseTask, PartialUpdateTask
+from app.schemas.task import (
+    CreateTask,
+    ResponseTask,
+    PartialUpdateTask,
+    ResponseTaskWithUserInfo,
+)
 from fastapi import APIRouter, Depends
 from fastapi import Body, Path, Query
 from typing import Annotated
@@ -9,7 +14,6 @@ from app.exceptions import (
     USER_NOT_FOUND_EXCEPTION,
     TASK_NOT_FOUND,
     ERROR_PAGINATION,
-    NO_DATA_FOR_UPDATES,
     PROJECT_NOT_FOUND_EXCEPTION,
 )
 from app.crud.task import get_task_by_id_crud
@@ -50,6 +54,16 @@ async def get_task_by_id(
     if not task:
         raise TASK_NOT_FOUND
     return task
+
+
+@router.get("/{task_id}/user", response_model=ResponseTaskWithUserInfo)
+async def get_task_with_users(
+    task_id: Annotated[
+        int, Path(gt=0, description="ID задачи для получения дополнительной информации")
+    ],
+    session: AsyncSession = Depends(get_db_session),
+):
+    return await crud.get_task_with_users_crud(task_id=task_id, session=session)
 
 
 @router.get("/", response_model=list[ResponseTask])

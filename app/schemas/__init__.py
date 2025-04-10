@@ -10,13 +10,20 @@ from app.schemas.project import (
     ResponseProject,
     PatchUpdateProject,
     ResponseProjectWithOutID,
+    ResponseProjectWithTasksInfo,
+    ResponseProjectWithUsersInfo,
 )
 from app.schemas.task import (
     CreateTask,
     ResponseTask,
     PartialUpdateTask,
     ResponseTaskWithOutID,
+    ResponseTaskWithUserInfo,
+    ResponseTaskInfo,
 )
 
 ResponseUserInfo.model_rebuild()
 ResponseUserWithProjects.model_rebuild()
+ResponseTaskWithUserInfo.model_rebuild()
+ResponseProjectWithUsersInfo.model_rebuild()
+ResponseProjectWithTasksInfo.model_rebuild()

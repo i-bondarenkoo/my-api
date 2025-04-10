@@ -1,4 +1,8 @@
 from pydantic import BaseModel, ConfigDict
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.schemas.user import ResponseUser
 
 
 class CreateTask(BaseModel):
@@ -15,6 +19,23 @@ class ResponseTaskWithOutID(BaseModel):
     status: str
     user_id: int
     project_id: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ResponseTaskWithUserInfo(BaseModel):
+    title: str
+    description: str
+    status: str
+    user: "ResponseUser"
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ResponseTaskInfo(BaseModel):
+    id: int
+    title: str
+    description: str
+    status: str
+    user_id: int
     model_config = ConfigDict(from_attributes=True)
 
 
