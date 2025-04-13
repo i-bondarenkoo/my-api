@@ -53,7 +53,7 @@ async def delete_task_crud(task_id: int, session: AsyncSession):
 
 
 # вывести задачу с информацией о пользователе
-async def get_task_with_users_crud(task_id: int, session: AsyncSession):
+async def get_task_with_user_crud(task_id: int, session: AsyncSession):
     current_task = await get_task_by_id_crud(task_id, session)
     if not current_task:
         raise TASK_NOT_FOUND
@@ -62,6 +62,22 @@ async def get_task_with_users_crud(task_id: int, session: AsyncSession):
         .where(TaskOrm.id == task_id)
         .options(
             selectinload(TaskOrm.user),
+        )
+    )
+    result = await session.execute(stmt)
+    return result.scalars().first()
+
+
+# вывести задачу с информацией о проекте
+async def get_task_with_porject_crud(task_id: int, session: AsyncSession):
+    current_task = await get_task_by_id_crud(task_id, session)
+    if not current_task:
+        raise TASK_NOT_FOUND
+    stmt = (
+        select(TaskOrm)
+        .where(TaskOrm.id == task_id)
+        .options(
+            selectinload(TaskOrm.project),
         )
     )
     result = await session.execute(stmt)

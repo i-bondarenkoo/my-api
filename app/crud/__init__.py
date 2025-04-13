@@ -22,7 +22,8 @@ from app.crud.task import (
     get_list_task_crud,
     update_task_partial_crud,
     delete_task_crud,
-    get_task_with_users_crud,
+    get_task_with_user_crud,
+    get_task_with_porject_crud,
 )
 from app.crud.user_project import (
     get_list_projects_for_user_crud,

@@ -20,6 +20,7 @@ from app.schemas.task import (
     ResponseTaskWithOutID,
     ResponseTaskWithUserInfo,
     ResponseTaskInfo,
+    ResponseTaskWithProjectInfo,
 )
 
 ResponseUserInfo.model_rebuild()
@@ -27,3 +28,4 @@ ResponseUserWithProjects.model_rebuild()
 ResponseTaskWithUserInfo.model_rebuild()
 ResponseProjectWithUsersInfo.model_rebuild()
 ResponseProjectWithTasksInfo.model_rebuild()
+ResponseTaskWithProjectInfo.model_rebuild()

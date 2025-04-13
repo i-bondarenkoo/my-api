@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app.schemas.user import ResponseUser
+    from app.schemas.project import ResponseProjectWithOutID
 
 
 class CreateTask(BaseModel):
@@ -27,6 +28,14 @@ class ResponseTaskWithUserInfo(BaseModel):
     description: str
     status: str
     user: "ResponseUser"
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ResponseTaskWithProjectInfo(BaseModel):
+    title: str
+    description: str
+    status: str
+    project: "ResponseProjectWithOutID"
     model_config = ConfigDict(from_attributes=True)
 
 

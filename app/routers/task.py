@@ -5,6 +5,7 @@ from app.schemas.task import (
     ResponseTask,
     PartialUpdateTask,
     ResponseTaskWithUserInfo,
+    ResponseTaskWithProjectInfo,
 )
 from fastapi import APIRouter, Depends
 from fastapi import Body, Path, Query
@@ -16,7 +17,6 @@ from app.exceptions import (
     ERROR_PAGINATION,
     PROJECT_NOT_FOUND_EXCEPTION,
 )
-from app.crud.task import get_task_by_id_crud
 from app.crud.user import get_user_by_id
 from app.crud.project import get_project_by_id_crud
 
@@ -63,7 +63,17 @@ async def get_task_with_users(
     ],
     session: AsyncSession = Depends(get_db_session),
 ):
-    return await crud.get_task_with_users_crud(task_id=task_id, session=session)
+    return await crud.get_task_with_user_crud(task_id=task_id, session=session)
+
+
+@router.get("/{task_id}/project", response_model=ResponseTaskWithProjectInfo)
+async def get_task_with_project(
+    task_id: Annotated[
+        int, Path(gt=0, description="ID задачи для получения дополнительной информации")
+    ],
+    session: AsyncSession = Depends(get_db_session),
+):
+    return await crud.get_task_with_porject_crud(task_id=task_id, session=session)
 
 
 @router.get("/", response_model=list[ResponseTask])
