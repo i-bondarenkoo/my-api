@@ -10,6 +10,6 @@ test_engine = create_async_engine(
 TestSession = async_sessionmaker(bind=test_engine, expire_on_commit=False)
 
 
-async def get_testdb_sesion():
+async def get_testdb_session():
     async with TestSession() as test_session:
         yield test_session

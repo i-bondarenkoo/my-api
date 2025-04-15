@@ -1,8 +1,7 @@
 import pytest
-
 import pytest_asyncio
-
-from tests.test_database import get_testdb_sesion
+from app.models.base import Base
+from tests.test_database import get_testdb_session
 from app.schemas.user import CreateUser
 from app import crud
 from app.models.user import UserOrm
@@ -12,10 +11,12 @@ from sqlalchemy import select
 # фикстура с сессией
 @pytest_asyncio.fixture(scope="function")
 async def get_session_test_db():
-    async for session in get_testdb_sesion():
-        async with session.begin_nested():
+    async for session in get_testdb_session():
+        try:
             yield session
-        await session.rollback()
+        finally:
+            await session.rollback()
+            await session.close()
 
 
 # фикстура с тестовыми данными
@@ -27,6 +28,14 @@ def get_user_data():
         email="john@mail.ru",
     )
     return user_data
+
+
+# очистка бд перед каждым тестом
+@pytest_asyncio.fixture(autouse=True)
+async def clean_db(get_session_test_db):
+    for table in reversed(Base.metadata.sorted_tables):
+        await get_session_test_db.execute(table.delete())
+    await get_session_test_db.commit()
 
 
 @pytest.mark.asyncio
