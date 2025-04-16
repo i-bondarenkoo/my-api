@@ -37,7 +37,8 @@ async def update_user_patch_crud(
     if not data:
         raise NO_DATA_FOR_UPDATES
     for key, value in data.items():
-        setattr(update_user, key, value)
+        if value is not None:
+            setattr(update_user, key, value)
     await session.commit()
     await session.refresh(update_user)
     return update_user
