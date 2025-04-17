@@ -3,12 +3,14 @@ import pytest_asyncio
 import asyncio
 from app.models.base import Base
 from tests.test_database import get_testdb_session
-from app.schemas.user import ResponseUser, PatchUpdateUser, CreateUser
+from app.schemas.user import ResponseUser, PatchUpdateUser, CreateUser, ResponseUserInfo
 from app import crud
 from app.models.user import UserOrm
 from sqlalchemy import select
 import random
 import string
+from fastapi import HTTPException, status
+from sqlalchemy.orm import selectinload
 
 
 def generate_rand_email():
@@ -139,3 +141,70 @@ async def test_update_user(
         assert response.last_name == last_name
     if email is not None:
         assert response.email == email
+
+
+@pytest.mark.asyncio
+async def test_delete_user(get_session_test_db, get_user_data):
+    user = await crud.create_user_crud(
+        user_in=get_user_data,
+        session=get_session_test_db,
+    )
+
+    response = await crud.delete_user_crud(
+        user_id=user.id,
+        session=get_session_test_db,
+    )
+    assert response == {
+        "message": "Пользователь успешно удален",
+    }
+    stmt = await get_session_test_db.execute(
+        select(UserOrm).where(UserOrm.id == user.id)
+    )
+    check_user = stmt.scalars().first()
+    assert check_user is None
+
+
+@pytest.mark.asyncio
+async def test_delete_fake_user(get_session_test_db):
+    # обработка ошибки
+    with pytest.raises(HTTPException) as e:
+        await crud.delete_user_crud(
+            user_id=111,
+            session=get_session_test_db,
+        )
+    assert e.value.status_code == status.HTTP_404_NOT_FOUND
+    assert e.value.detail == "Пользователь не найден"
+
+
+@pytest.mark.asyncio
+async def test_get_user_with_task_and_project(
+    get_session_test_db,
+    get_task_data,
+    get_project_data,
+    get_user_data,
+):
+    user = await crud.create_user_crud(
+        user_in=get_user_data,
+        session=get_session_test_db,
+    )
+    project = await crud.create_project_crud(
+        project_in=get_project_data,
+        session=get_session_test_db,
+    )
+
+    task = await crud.create_task_crud(
+        task=get_task_data,
+        session=get_session_test_db,
+    )
+    stmt = await get_session_test_db.execute(
+        select(UserOrm)
+        .where(UserOrm.id == user.id)
+        .options(
+            selectinload(UserOrm.tasks),
+            selectinload(UserOrm.projects),
+        )
+    )
+    check_user = stmt.scalars().first()
+    assert check_user is not None
+    validate_user = ResponseUserInfo.model_validate(check_user)
+    assert isinstance(validate_user, ResponseUserInfo)
