@@ -1,9 +1,7 @@
 import pytest
-import pytest_asyncio
-import asyncio
-from app.models.base import Base
-from tests.test_database import get_testdb_session
-from app.schemas.user import ResponseUser, PatchUpdateUser, CreateUser, ResponseUserInfo
+
+
+from app.schemas.user import ResponseUser, PatchUpdateUser, CreateUser
 from app import crud
 from app.models.project import ProjectOrm
 from app.models.user import UserOrm
@@ -11,7 +9,6 @@ from sqlalchemy import select
 import random
 import string
 from fastapi import HTTPException, status
-from sqlalchemy.orm import selectinload
 
 
 def generate_rand_email():
@@ -38,7 +35,10 @@ def update_user():
 
 
 @pytest.mark.asyncio
-async def test_create_user(session_test_db, user_data):
+async def test_create_user(
+    session_test_db,
+    user_data,
+):
     response = await crud.create_user_crud(user_in=user_data, session=session_test_db)
     assert response is not None
     assert response.first_name == user_data.first_name
@@ -56,7 +56,10 @@ async def test_create_user(session_test_db, user_data):
 
 
 @pytest.mark.asyncio
-async def test_get_users_by_id(session_test_db, user_data):
+async def test_get_users_by_id(
+    session_test_db,
+    user_data,
+):
     # создаю пользователя
     user = await crud.create_user_crud(
         user_in=user_data,
@@ -81,7 +84,12 @@ async def test_get_users_by_id(session_test_db, user_data):
         (5, 10, 0),
     ],
 )
-async def test_get_list_users(session_test_db, start, stop, expected_len):
+async def test_get_list_users(
+    session_test_db,
+    start,
+    stop,
+    expected_len,
+):
     for _ in range(5):
         await crud.create_user_crud(
             user_in=user_data_2(),
@@ -115,7 +123,13 @@ async def test_get_list_users(session_test_db, start, stop, expected_len):
         ("John", None, "john-karlson@mail.ru"),
     ],
 )
-async def test_update_user(session_test_db, user_data, first_name, last_name, email):
+async def test_update_user(
+    session_test_db,
+    user_data,
+    first_name,
+    last_name,
+    email,
+):
     user = await crud.create_user_crud(
         user_in=user_data,
         session=session_test_db,
@@ -141,7 +155,10 @@ async def test_update_user(session_test_db, user_data, first_name, last_name, em
 
 
 @pytest.mark.asyncio
-async def test_delete_user(session_test_db, user_data):
+async def test_delete_user(
+    session_test_db,
+    user_data,
+):
     user = await crud.create_user_crud(
         user_in=user_data,
         session=session_test_db,
@@ -160,7 +177,9 @@ async def test_delete_user(session_test_db, user_data):
 
 
 @pytest.mark.asyncio
-async def test_delete_fake_user(session_test_db):
+async def test_delete_fake_user(
+    session_test_db,
+):
     # обработка ошибки
     with pytest.raises(HTTPException) as e:
         await crud.delete_user_crud(
