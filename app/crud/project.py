@@ -9,7 +9,8 @@ from sqlalchemy.orm import selectinload
 async def create_project_crud(project_in: CreateProject, session: AsyncSession):
     new_project = ProjectOrm(**project_in.model_dump())
     session.add(new_project)
-    await session.commit()
+    # await session.commit()
+    await session.flush()
     await session.refresh(new_project)
     return new_project
 

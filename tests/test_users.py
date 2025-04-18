@@ -5,6 +5,7 @@ from app.models.base import Base
 from tests.test_database import get_testdb_session
 from app.schemas.user import ResponseUser, PatchUpdateUser, CreateUser, ResponseUserInfo
 from app import crud
+from app.models.project import ProjectOrm
 from app.models.user import UserOrm
 from sqlalchemy import select
 import random
@@ -19,7 +20,7 @@ def generate_rand_email():
     return f"{rand_str}@mail.ru"
 
 
-def get_user_data_2():
+def user_data_2():
     user_data_2 = CreateUser(
         first_name="Andy",
         last_name="Orton",
@@ -37,16 +38,14 @@ def update_user():
 
 
 @pytest.mark.asyncio
-async def test_create_user(get_session_test_db, get_user_data):
-    response = await crud.create_user_crud(
-        user_in=get_user_data, session=get_session_test_db
-    )
+async def test_create_user(session_test_db, user_data):
+    response = await crud.create_user_crud(user_in=user_data, session=session_test_db)
     assert response is not None
-    assert response.first_name == get_user_data.first_name
-    assert response.last_name == get_user_data.last_name
-    assert response.email == get_user_data.email
+    assert response.first_name == user_data.first_name
+    assert response.last_name == user_data.last_name
+    assert response.email == user_data.email
     assert isinstance(response.id, int)
-    stmt = await get_session_test_db.execute(
+    stmt = await session_test_db.execute(
         select(UserOrm).where(UserOrm.id == response.id)
     )
     user_in_db = stmt.scalars().first()
@@ -57,18 +56,18 @@ async def test_create_user(get_session_test_db, get_user_data):
 
 
 @pytest.mark.asyncio
-async def test_get_users_by_id(get_session_test_db, get_user_data):
+async def test_get_users_by_id(session_test_db, user_data):
     # создаю пользователя
     user = await crud.create_user_crud(
-        user_in=get_user_data,
-        session=get_session_test_db,
+        user_in=user_data,
+        session=session_test_db,
     )
-    response = await crud.get_user_by_id(user_id=user.id, session=get_session_test_db)
+    response = await crud.get_user_by_id(user_id=user.id, session=session_test_db)
     assert response is not None
     assert isinstance(response.id, int)
-    assert response.first_name == get_user_data.first_name
-    assert response.last_name == get_user_data.last_name
-    assert response.email == get_user_data.email
+    assert response.first_name == user_data.first_name
+    assert response.last_name == user_data.last_name
+    assert response.email == user_data.email
 
 
 @pytest.mark.asyncio
@@ -82,14 +81,14 @@ async def test_get_users_by_id(get_session_test_db, get_user_data):
         (5, 10, 0),
     ],
 )
-async def test_get_list_users(get_session_test_db, start, stop, expected_len):
+async def test_get_list_users(session_test_db, start, stop, expected_len):
     for _ in range(5):
         await crud.create_user_crud(
-            user_in=get_user_data_2(),
-            session=get_session_test_db,
+            user_in=user_data_2(),
+            session=session_test_db,
         )
     response = await crud.get_list_users_crud(
-        session=get_session_test_db,
+        session=session_test_db,
         start=start,
         stop=stop,
     )
@@ -116,12 +115,10 @@ async def test_get_list_users(get_session_test_db, start, stop, expected_len):
         ("John", None, "john-karlson@mail.ru"),
     ],
 )
-async def test_update_user(
-    get_session_test_db, get_user_data, first_name, last_name, email
-):
+async def test_update_user(session_test_db, user_data, first_name, last_name, email):
     user = await crud.create_user_crud(
-        user_in=get_user_data,
-        session=get_session_test_db,
+        user_in=user_data,
+        session=session_test_db,
     )
     # Создаем объект для частичного обновления
     update_user = PatchUpdateUser(
@@ -131,7 +128,7 @@ async def test_update_user(
     )
     # Выполняем обновление
     response = await crud.update_user_patch_crud(
-        user=update_user, user_id=user.id, session=get_session_test_db
+        user=update_user, user_id=user.id, session=session_test_db
     )
     assert response is not None
     # Проверяем, что только те поля, которые переданы, были обновлены
@@ -144,33 +141,31 @@ async def test_update_user(
 
 
 @pytest.mark.asyncio
-async def test_delete_user(get_session_test_db, get_user_data):
+async def test_delete_user(session_test_db, user_data):
     user = await crud.create_user_crud(
-        user_in=get_user_data,
-        session=get_session_test_db,
+        user_in=user_data,
+        session=session_test_db,
     )
 
     response = await crud.delete_user_crud(
         user_id=user.id,
-        session=get_session_test_db,
+        session=session_test_db,
     )
     assert response == {
         "message": "Пользователь успешно удален",
     }
-    stmt = await get_session_test_db.execute(
-        select(UserOrm).where(UserOrm.id == user.id)
-    )
+    stmt = await session_test_db.execute(select(UserOrm).where(UserOrm.id == user.id))
     check_user = stmt.scalars().first()
     assert check_user is None
 
 
 @pytest.mark.asyncio
-async def test_delete_fake_user(get_session_test_db):
+async def test_delete_fake_user(session_test_db):
     # обработка ошибки
     with pytest.raises(HTTPException) as e:
         await crud.delete_user_crud(
             user_id=111,
-            session=get_session_test_db,
+            session=session_test_db,
         )
     assert e.value.status_code == status.HTTP_404_NOT_FOUND
     assert e.value.detail == "Пользователь не найден"
@@ -178,33 +173,67 @@ async def test_delete_fake_user(get_session_test_db):
 
 @pytest.mark.asyncio
 async def test_get_user_with_task_and_project(
-    get_session_test_db,
-    get_task_data,
-    get_project_data,
-    get_user_data,
+    session_test_db,
+    task_data,
+    project_data,
+    user_data,
 ):
-    user = await crud.create_user_crud(
-        user_in=get_user_data,
-        session=get_session_test_db,
+    new_user = await crud.create_user_crud(
+        user_in=user_data,
+        session=session_test_db,
     )
-    project = await crud.create_project_crud(
-        project_in=get_project_data,
-        session=get_session_test_db,
+    new_project = await crud.create_project_crud(
+        project_in=project_data,
+        session=session_test_db,
     )
+    update_task_data = task_data.model_copy(
+        update={
+            "user_id": new_user.id,
+            "project_id": new_project.id,
+        }
+    )
+    new_task = await crud.create_task_crud(
+        task=update_task_data,
+        session=session_test_db,
+    )
+    await crud.insert_secondary_table_crud(
+        user_id=new_user.id,
+        project_id=new_project.id,
+        session=session_test_db,
+    )
+    result = await crud.get_user_with_projects_and_tasks_crud(
+        user_id=new_user.id,
+        session=session_test_db,
+    )
+    assert result is not None
+    assert len(result.tasks) == 1
+    assert len(result.projects) == 1
+    assert result.tasks[0].title == "Тестовая Задача"
+    assert result.tasks[0].description == "Какое-то описание"
+    assert result.projects[0].title == "Тестовый проект"
+    assert result.projects[0].description == "Описание"
 
-    task = await crud.create_task_crud(
-        task=get_task_data,
-        session=get_session_test_db,
+
+@pytest.mark.asyncio
+async def test_get_user_with_project(session_test_db, user_data, project_data):
+    new_user = await crud.create_user_crud(
+        user_in=user_data,
+        session=session_test_db,
     )
-    stmt = await get_session_test_db.execute(
-        select(UserOrm)
-        .where(UserOrm.id == user.id)
-        .options(
-            selectinload(UserOrm.tasks),
-            selectinload(UserOrm.projects),
-        )
+    new_project = await crud.create_project_crud(
+        project_in=project_data,
+        session=session_test_db,
     )
-    check_user = stmt.scalars().first()
-    assert check_user is not None
-    validate_user = ResponseUserInfo.model_validate(check_user)
-    assert isinstance(validate_user, ResponseUserInfo)
+    await crud.insert_secondary_table_crud(
+        user_id=new_user.id,
+        project_id=new_project.id,
+        session=session_test_db,
+    )
+    result = await crud.get_user_with_projects(
+        user_id=new_user.id,
+        session=session_test_db,
+    )
+    assert result is not None
+    assert len(result.projects) == 1
+    assert result.projects[0].title == "Тестовый проект"
+    assert result.projects[0].description == "Описание"
