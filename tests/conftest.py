@@ -6,6 +6,7 @@ from tests.test_database import get_testdb_session
 from app.schemas.user import CreateUser
 from app.schemas.task import CreateTask
 from app.schemas.project import CreateProject
+from app import crud
 
 
 @pytest.fixture(scope="session")
@@ -65,3 +66,21 @@ async def clean_db(session_test_db):
     for table in reversed(Base.metadata.sorted_tables):
         await session_test_db.execute(table.delete())
     await session_test_db.commit()
+
+
+@pytest_asyncio.fixture(scope="function")
+async def create_project(project_data, session_test_db):
+    project = await crud.create_project_crud(
+        project_in=project_data,
+        session=session_test_db,
+    )
+    return project
+
+
+@pytest_asyncio.fixture(scope="function")
+async def create_user(user_data, session_test_db):
+    user = await crud.create_user_crud(
+        user_in=user_data,
+        session=session_test_db,
+    )
+    return user
