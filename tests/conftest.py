@@ -84,3 +84,11 @@ async def create_user(user_data, session_test_db):
         session=session_test_db,
     )
     return user
+
+
+@pytest_asyncio.fixture(scope="function")
+async def create_task(task_data, session_test_db):
+    task = await crud.create_task_crud(
+        task=task_data,
+        session=session_test_db,
+    )

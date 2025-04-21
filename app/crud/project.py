@@ -36,7 +36,8 @@ async def update_project_patch_crud(
     if not data:
         raise NO_DATA_FOR_UPDATES
     for key, value in data.items():
-        setattr(update_project, key, value)
+        if value is not None:
+            setattr(update_project, key, value)
     await session.commit()
     await session.refresh(update_project)
     return update_project
