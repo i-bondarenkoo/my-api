@@ -161,7 +161,7 @@ async def test_get_users_in_project(create_user, create_project, session_test_db
 @pytest.mark.asyncio
 async def test_get_tasks_in_project(create_user, session_test_db):
     projects = []
-    for i in range(1, 4):
+    for i in range(3):
         project = await crud.create_project_crud(
             project_in=CreateProject(
                 title=f"Проект {i}",
