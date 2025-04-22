@@ -38,12 +38,12 @@ def update_user():
 async def test_create_user(
     create_user,
     session_test_db,
-    user_data,
+    make_user_data,
 ):
     assert create_user is not None
-    assert create_user.first_name == user_data.first_name
-    assert create_user.last_name == user_data.last_name
-    assert create_user.email == user_data.email
+    assert create_user.first_name == make_user_data.first_name
+    assert create_user.last_name == make_user_data.last_name
+    assert create_user.email == make_user_data.email
     assert isinstance(create_user.id, int)
     stmt = await session_test_db.execute(
         select(UserOrm).where(UserOrm.id == create_user.id)
@@ -184,11 +184,11 @@ async def test_delete_fake_user(
 @pytest.mark.asyncio
 async def test_get_user_with_task_and_project(
     session_test_db,
-    task_data,
+    make_task_data,
     create_user,
     create_project,
 ):
-    update_task_data = task_data.model_copy(
+    update_task_data = make_task_data.model_copy(
         update={
             "user_id": create_user.id,
             "project_id": create_project.id,
@@ -218,7 +218,9 @@ async def test_get_user_with_task_and_project(
 
 @pytest.mark.asyncio
 async def test_get_user_with_project(
-    create_user, create_project, session_test_db, user_data, project_data
+    create_user,
+    create_project,
+    session_test_db,
 ):
     await crud.insert_secondary_table_crud(
         user_id=create_user.id,

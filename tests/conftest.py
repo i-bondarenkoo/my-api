@@ -29,7 +29,7 @@ async def session_test_db():
 
 # фикстура с тестовыми данными
 @pytest_asyncio.fixture(scope="function")
-def user_data():
+def make_user_data():
     user_data = CreateUser(
         first_name="John",
         last_name="Johns",
@@ -39,7 +39,7 @@ def user_data():
 
 
 @pytest_asyncio.fixture(scope="function")
-def project_data():
+def make_project_data():
     project_data = CreateProject(
         title="Тестовый проект",
         description="Описание",
@@ -49,7 +49,7 @@ def project_data():
 
 
 @pytest_asyncio.fixture(scope="function")
-def task_data():
+def make_task_data():
     task_data = CreateTask(
         title="Тестовая Задача",
         description="Какое-то описание",
@@ -69,26 +69,26 @@ async def clean_db(session_test_db):
 
 
 @pytest_asyncio.fixture(scope="function")
-async def create_project(project_data, session_test_db):
+async def create_project(make_project_data, session_test_db):
     project = await crud.create_project_crud(
-        project_in=project_data,
+        project_in=make_project_data,
         session=session_test_db,
     )
     return project
 
 
 @pytest_asyncio.fixture(scope="function")
-async def create_user(user_data, session_test_db):
+async def create_user(make_user_data, session_test_db):
     user = await crud.create_user_crud(
-        user_in=user_data,
+        user_in=make_user_data,
         session=session_test_db,
     )
     return user
 
 
 @pytest_asyncio.fixture(scope="function")
-async def create_task(task_data, session_test_db):
+async def create_task(make_task_data, session_test_db):
     task = await crud.create_task_crud(
-        task=task_data,
+        task=make_task_data,
         session=session_test_db,
     )

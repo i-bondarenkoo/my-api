@@ -20,11 +20,11 @@ async def helper_check_project(session, project_id):
 
 
 @pytest.mark.asyncio
-async def test_create_project(create_project, project_data, session_test_db):
+async def test_create_project(create_project, make_project_data, session_test_db):
     assert create_project is not None
-    assert create_project.title == project_data.title
-    assert create_project.description == project_data.description
-    assert create_project.status == project_data.status
+    assert create_project.title == make_project_data.title
+    assert create_project.description == make_project_data.description
+    assert create_project.status == make_project_data.status
     project_in = await helper_check_project(session_test_db, create_project.id)
 
 
@@ -161,7 +161,7 @@ async def test_get_users_in_project(create_user, create_project, session_test_db
 @pytest.mark.asyncio
 async def test_get_tasks_in_project(create_user, session_test_db):
     projects = []
-    for i in range(3):
+    for i in range(1, 4):
         project = await crud.create_project_crud(
             project_in=CreateProject(
                 title=f"Проект {i}",
@@ -172,14 +172,14 @@ async def test_get_tasks_in_project(create_user, session_test_db):
         )
         projects.append(project)
 
-    for i in range(7):
+    for i in range(1, 8):
         await crud.create_task_crud(
             task=CreateTask(
                 title=f"Задача {i}",
                 description=f"Описание {i}",
                 status="в работе",
                 user_id=create_user.id,
-                project_id=projects[i % len(projects)].id,
+                project_id=projects[(i - 1) % len(projects)].id,
             ),
             session=session_test_db,
         )
@@ -188,6 +188,6 @@ async def test_get_tasks_in_project(create_user, session_test_db):
         session_test_db,
     )
     assert result_project.id == projects[0].id
-    assert len(result_project.tasks) >= 2
+    assert len(result_project.tasks) == 3
     for task in result_project.tasks:
         assert task.project_id == projects[0].id
