@@ -1,9 +1,6 @@
 import pytest
-
-
 from app.schemas.user import ResponseUser, PatchUpdateUser, CreateUser
 from app import crud
-from app.models.project import ProjectOrm
 from app.models.user import UserOrm
 from sqlalchemy import select
 import random

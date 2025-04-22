@@ -1,4 +1,3 @@
-from urllib import response
 import pytest
 from app import crud
 from sqlalchemy import select
@@ -121,7 +120,6 @@ async def test_update_project(
 
 @pytest.mark.asyncio
 async def test_delete_project(create_project, session_test_db):
-    assert create_project is not None
     await helper_check_project(session_test_db, create_project.id)
     response = await crud.delete_project_crud(
         project_id=create_project.id, session=session_test_db
