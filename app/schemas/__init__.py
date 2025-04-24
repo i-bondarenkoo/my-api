@@ -4,6 +4,8 @@ from app.schemas.user import (
     PatchUpdateUser,
     ResponseUserInfo,
     ResponseUserWithProjects,
+    UserSchemaLogin,
+    UserSchemaResponse,
 )
 from app.schemas.project import (
     CreateProject,
@@ -22,6 +24,7 @@ from app.schemas.task import (
     ResponseTaskInfo,
     ResponseTaskWithProjectInfo,
 )
+from app.schemas.token import TokenResponse
 
 ResponseUserInfo.model_rebuild()
 ResponseUserWithProjects.model_rebuild()

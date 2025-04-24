@@ -39,3 +39,15 @@ class PatchUpdateUser(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     email: EmailStr | None = None
+
+
+class UserSchemaLogin(BaseModel):
+    username: str
+    password: str
+
+
+class UserSchemaResponse(BaseModel):
+    username: str
+    email: EmailStr
+    full_name: str
+    model_config = ConfigDict(from_attributes=True)
