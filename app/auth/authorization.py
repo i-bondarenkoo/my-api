@@ -23,7 +23,7 @@ def check_user(username: str, password: str, fake_users: dict):
     if current_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Пользователь не авторизован, доступ запрещен",
+            detail="Пользователь не найден",
         )
     return current_user
 
@@ -52,6 +52,7 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Пользователь не авторизован",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     current_user = UserSchemaResponse(
         username=user["username"],
