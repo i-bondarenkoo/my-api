@@ -1,7 +1,11 @@
-from fastapi import security
 from app.auth.fake_users import fake_users
 from app.auth.auth_utils import verify_password
-from app.auth.jwt import create_access_token, decode_access_token
+from app.auth.jwt import (
+    create_access_token,
+    create_jwt,
+    create_refresh_token,
+    decode_jwt,
+)
 from fastapi import HTTPException, status, Depends
 from app.core.settings import settings
 from fastapi import APIRouter
@@ -9,6 +13,8 @@ from app.schemas.user import UserSchemaLogin, UserSchemaResponse
 from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from app.schemas.token import TokenResponse
+from datetime import datetime
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -18,7 +24,7 @@ router = APIRouter(
 )
 
 
-def check_user(username: str, password: str, fake_users: dict):
+def check_user(username: str):
     current_user = fake_users.get(username)
     if current_user is None:
         raise HTTPException(
@@ -28,8 +34,8 @@ def check_user(username: str, password: str, fake_users: dict):
     return current_user
 
 
-def authenticate_user(fake_users, username: str, password: str):
-    user = check_user(username, password, fake_users)
+def authenticate_user(username: str, password: str):
+    user = check_user(username)
     check_password = verify_password(password, user["password"])
     if not check_password:
         raise HTTPException(
@@ -39,15 +45,21 @@ def authenticate_user(fake_users, username: str, password: str):
     return user
 
 
+# проверка времени жизни токена
+def is_token_expired(expire_timestamp: int) -> bool:
+    expire_time = datetime.fromtimestamp(expire_timestamp)
+    return datetime.utcnow() > expire_time
+
+
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 
-    decode_token: dict = decode_access_token(
+    decode_token: dict = decode_jwt(
         token=token,
         secret_key=settings.secret_key,
         algorithm=settings.algorithm,
     )
     username = decode_token["sub"]
-    user = fake_users.get(username)
+    user = check_user(username)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -62,19 +74,20 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     return current_user
 
 
-@router.post("/login")
+@router.post("/login", response_model=TokenResponse)
 def login(data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(fake_users, data.username, data.password)
-    new_token = create_access_token(
-        payload={"sub": data.username},
-        algorithm=settings.algorithm,
-        secret_key=settings.secret_key,
+    user = authenticate_user(data.username, data.password)
+    user_data = UserSchemaLogin(
+        username=data.username,
+        password=data.password,
     )
-    return TokenResponse(access_token=new_token)
+    access_token = create_access_token(user_data)
+    refresh_token = create_refresh_token(user_data)
+    return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
 @router.get("/users/me")
 def read_user(
-    current_user: Annotated[UserSchemaLogin, Depends(get_current_user)],
+    current_user: Annotated[UserSchemaResponse, Depends(get_current_user)],
 ):
     return current_user

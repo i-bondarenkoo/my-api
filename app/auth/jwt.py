@@ -1,10 +1,14 @@
 import jwt
 from app.core.settings import settings
 from datetime import datetime, timedelta
+from app.schemas.user import UserSchemaLogin
+
+ACCESS_TOKEN_TYPE = "access"
+REFRESH_TOKEN_TYPE = "refresh"
 
 
 # функция создания токена
-def create_access_token(
+def create_jwt(
     payload: dict,
     algorithm: str = settings.algorithm,
     secret_key: str = settings.secret_key,
@@ -27,7 +31,7 @@ def create_access_token(
 
 
 # функция декодирования токена
-def decode_access_token(
+def decode_jwt(
     token: str | bytes,
     secret_key: str = settings.secret_key,
     algorithm: str = settings.algorithm,
@@ -38,3 +42,31 @@ def decode_access_token(
         algorithms=[algorithm],
     )
     return decode_token
+
+
+def create_access_token(token_data: UserSchemaLogin) -> str:
+    jwt_payload = {
+        "sub": token_data.username,
+        "type": ACCESS_TOKEN_TYPE,
+    }
+    access_token = create_jwt(
+        payload=jwt_payload,
+        algorithm=settings.algorithm,
+        secret_key=settings.secret_key,
+        expire_minutes=settings.access_token_expire_minutes,
+    )
+    return access_token
+
+
+def create_refresh_token(token_data: UserSchemaLogin) -> str:
+    jwt_payload = {
+        "sub": token_data.username,
+        "type": REFRESH_TOKEN_TYPE,
+    }
+    refresh_token = create_jwt(
+        payload=jwt_payload,
+        algorithm=settings.algorithm,
+        secret_key=settings.secret_key,
+        expire_timedelta=timedelta(days=settings.refresh_token_expire_days),
+    )
+    return refresh_token
