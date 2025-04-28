@@ -1,0 +1,12 @@
+{% extends "home.html" %}
+
+{% block title %}Задача{% endblock %}
+
+{% block content %}
+    {% if task %}
+        <h2>{{ task.title }}</h2>
+        <p>{{ task.description }}</p>
+    {% else %}
+        <h2>Задача не найдена</h2>
+    {% endif %}
+{% endblock %}

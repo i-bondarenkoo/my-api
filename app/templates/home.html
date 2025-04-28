@@ -2,18 +2,27 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Моя страница{% endblock %}</title>
-    <h2>Jopa</h2>
+    <title>{% block title %}To-Do List{% endblock %}</title>
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
+    <header>
+        <h1>Мой сайт задач</h1>
+        <nav>
+            <a href="/">Главная</a>
+            <a href="/tasks">Все задачи</a>
+            <a href="/tasks/create">Создать задачу</a>
+        </nav>
+    </header>
 
+    <main>
+        {% block content %}{% endblock %}
+    </main>
 
-<main>
-    {% block content %}
-    {% endblock %}
-</main>
-
+    <footer>
+        <p>© 2025 Мой сайт задач</p>
+    </footer>
 </body>
 </html>
+
 

@@ -13,16 +13,25 @@ router = APIRouter(prefix="/pages", tags=["Pages"])
 templates = Jinja2Templates(directory="app/templates")
 
 
-# @router.get("/users/{user_id}", response_class=HTMLResponse)
-# async def read_user(
-#     request: Request, user_id: int, session: AsyncSession = Depends(get_db_session)
-# ):
-#     user = await crud.get_user_by_id(user_id, session)
-#     return templates.TemplateResponse(
-#         request=request, name="home.html", context={"request": request, "user": user}
-#     )
+@router.get("/users/{user_id}", response_class=HTMLResponse)
+async def read_user(
+    request: Request, user_id: int, session: AsyncSession = Depends(get_db_session)
+):
+    user = await crud.get_user_by_id(user_id, session)
+    return templates.TemplateResponse(
+        request=request, name="home.html", context={"request": request, "user": user}
+    )
 
 
-@router.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request})
+@router.get("/tasks/{task_id}", response_class=HTMLResponse)
+async def read_task(
+    request: Request,
+    task_id: int,
+    session: AsyncSession = Depends(get_db_session),
+):
+    task = await crud.get_task_by_id_crud(task_id, session)
+    return templates.TemplateResponse(
+        request=Request,
+        name="task_detail.html",
+        context={"request": request, "task": task},
+    )
