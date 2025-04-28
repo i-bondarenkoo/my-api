@@ -25,8 +25,8 @@ async def insert_secondary_table_crud(
 
     try:
         await session.execute(stmt)
-        # await session.commit()
-        await session.flush()
+        await session.commit()
+        # await session.flush()
     except IntegrityError:
         await session.rollback()
         raise HTTPException(

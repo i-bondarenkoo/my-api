@@ -9,8 +9,8 @@ from sqlalchemy.orm import selectinload
 async def create_task_crud(task: CreateTask, session: AsyncSession):
     new_task = TaskOrm(**task.model_dump())
     session.add(new_task)
-    # await session.commit()
-    await session.flush()
+    await session.commit()
+    # await session.flush()
     await session.refresh(new_task)
     return new_task
 
