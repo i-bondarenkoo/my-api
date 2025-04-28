@@ -13,7 +13,8 @@ from app.schemas.user import UserSchemaLogin, UserSchemaResponse
 from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from app.schemas.token import TokenResponse
-from datetime import datetime
+
+from app.auth.helpers import error_handler
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -46,13 +47,13 @@ def authenticate_user(username: str, password: str):
 
 
 # проверка времени жизни токена
-def is_token_expired(expire_timestamp: int) -> bool:
-    expire_time = datetime.fromtimestamp(expire_timestamp)
-    return datetime.utcnow() > expire_time
+# def is_token_expired(expire_timestamp: int) -> bool:
+#     expire_time = datetime.fromtimestamp(expire_timestamp)
+#     return datetime.utcnow() > expire_time
 
 
+@error_handler
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-
     decode_token: dict = decode_jwt(
         token=token,
         secret_key=settings.secret_key,
@@ -74,6 +75,26 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     return current_user
 
 
+@error_handler
+def check_type_token(token: Annotated[str, Depends(oauth2_scheme)]):
+    token_info: dict = decode_jwt(
+        token=token,
+        secret_key=settings.secret_key,
+        algorithm=settings.algorithm,
+    )
+    token_type = token_info["type"]
+    if token_type != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Пользователь не авторизован",
+        )
+    else:
+        username = token_info["sub"]
+        user_data = UserSchemaLogin(username=username, password="")
+        new_access_token = create_access_token(user_data)
+        return new_access_token
+
+
 @router.post("/login", response_model=TokenResponse)
 def login(data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(data.username, data.password)
@@ -84,6 +105,24 @@ def login(data: OAuth2PasswordRequestForm = Depends()):
     access_token = create_access_token(user_data)
     refresh_token = create_refresh_token(user_data)
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
+
+
+@router.post("/refresh")
+def update_token(refresh_token: str):
+    token_info = decode_jwt(
+        token=refresh_token,
+        secret_key=settings.secret_key,
+        algorithm=settings.algorithm,
+    )
+    if token_info["type"] != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Пользователь не авторизован или не верный токен",
+        )
+    username = token_info["sub"]
+    user_data = UserSchemaLogin(username=username, password="")
+    new_access_token = create_access_token(user_data)
+    return {"access_token": new_access_token}
 
 
 @router.get("/users/me")
