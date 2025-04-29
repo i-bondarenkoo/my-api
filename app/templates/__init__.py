@@ -1,1 +1,1 @@
-from app.templates.pages import router as views_router
+from app.templates.users.views import router as views_router
