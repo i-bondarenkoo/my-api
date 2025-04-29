@@ -15,6 +15,7 @@ app.include_router(task_router)
 app.include_router(association_router)
 app.include_router(auth_router)
 app.include_router(user_views)
+
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 

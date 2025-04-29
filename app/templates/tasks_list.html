@@ -1,0 +1,43 @@
+{% block content %}
+    <link rel="stylesheet" href="/static/css/style.css">
+    <h2 class="header-list">Общий список задач</h2>
+
+    <table class="task-table">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Статус</th>
+                <th>ID пользователя</th>
+                <th>ID проекта</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if tasks %}
+                {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.description }}</td>
+                        <td>{{ task.status }}</td>
+                        <td>{{ task.user_id }}</td>
+                        <td>{{ task.project_id }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5"style="text-align: center;">Задачи не найдены</td>
+                </tr>    
+            {% endif %}        
+        </tbody>
+    </table>
+    <div class="center">
+        {% if start >= step %}
+            <a class="nav-button" href="/pages/tasks?start={{ start - step }}&stop={{ stop - step }}"> Предыдущая страница</a>
+        {% endif %}
+        <a class="nav-button" href="/pages/tasks?start={{ start + step }}&stop={{ stop + step }}">Следующая страница </a>
+    </div>
+
+    <div style="text-align: center;">
+        <a class="url-list", href="/pages">Вернуться на главную страницу</a>
+    </div>
+{% endblock %}

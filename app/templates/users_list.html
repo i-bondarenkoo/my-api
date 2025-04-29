@@ -1,7 +1,8 @@
-{% extends 'base.html' %}
+
 
 {% block content %}
-    <h2 style="text-align: center;">Список пользователей</h2>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <h2 class = "header-list", style="text-align: center;">Список пользователей</h2>
 
     <table class="user-table">
         <thead>
@@ -12,13 +13,29 @@
             </tr>
         </thead>
         <tbody>
-            {% for user in users %}
+            {% if users %}
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.first_name }}</td>
+                        <td>{{ user.last_name }}</td>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
                 <tr>
-                    <td>{{ user.first_name }}</td>
-                    <td>{{ user.last_name }}</td>
-                    <td>{{ user.email }}</td>
+                    <td colspan="3" style="text-align: center;">Пользователи не найдены</td>
                 </tr>
-            {% endfor %}
+            {% endif %}
         </tbody>
     </table>
+    <div class="center">
+        {% if start >= step %}
+            <a class="nav-button" href="/pages/users?start={{ start - step }}&stop={{ stop - step }}"> Предыдущая страница</a>
+        {% endif %}
+        <a class="nav-button" href="/pages/users?start={{ start + step }}&stop={{ stop + step }}">Следующая страница </a>
+    </div>
+
+    <div style="text-align: center;">
+        <a class="url-list", href="/pages">Вернуться на главную страницу</a>
+    </div>
 {% endblock %}

@@ -6,6 +6,7 @@ body {
 
 main {
     padding: 20px;
+    text-align: center;
 }
 
 .user-table {
@@ -19,7 +20,9 @@ main {
     padding: 12px 15px;
     text-align: center;
 }
-
+.header-list {
+    margin-top: 25px;
+}
 .user-table th {
     background-color: #4CAF50;
     color: white;
@@ -33,6 +36,55 @@ main {
     background-color: #ddd;
 }
 
-h2 {
-    margin-bottom: 20px;
+.url-list {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50; 
+    color: white;
+    text-align: center;
+    text-decoration: none; 
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    margin-top: 25px;
+}
+.wrapper-header {
+    text-align: center;
+    font-size: 25px;
+    color: rgb(42, 190, 37);
+}
+.center {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.nav-button {
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #6e1eb9;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.nav-button:hover {
+    background-color: #271cb4;
+}
+
+.nav-button:disabled {
+    background-color: #ccc;
+    color: #999;
+}
+.users-button {
+    padding: 10px 20px;
+}
+.navigation {
+    padding: 10px 20px;
+}
+
+.button-main-menu {
+    text-decoration: none;
+    color: #6e1eb9;
+    display: flex;
 }

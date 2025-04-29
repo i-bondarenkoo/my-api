@@ -1,27 +1,20 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}To-Do List{% endblock %}</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>To-Do List</title>
 </head>
 <body>
-    <header>
-        <h1>To-Do List</h1>
-        <nav>
-            <a href="/">Главная</a>
-
+    <h1 class="wrapper-header", style="text-align: center;">Система управления пользователями и проектами</h1>
+    <div>
+        <nav class="navigation">
+            <a class='button-main-menu', href="/pages/users/">Посмотреть список пользователей</a>
+            <a class="button-main-menu", href="/pages/tasks/">Посмотреть список задач</a>
+            <a href=""></a>
+            <a href=""></a>
         </nav>
-    </header>
-
-    <main>
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer>
-        <p>© 2025 Мой сайт задач</p>
-    </footer>
+    </div>
 </body>
 </html>
-
-
