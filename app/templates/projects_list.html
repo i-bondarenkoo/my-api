@@ -1,0 +1,42 @@
+{% block content %}
+    <link rel="stylesheet" href="/static/css/style.css">
+    <h2 class="header-list", style="text-align: center">Общий список проектов</h2>
+
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Статус</th>
+                <th>Дата создания</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if projects %}
+                {% for project in projects %}
+                    <tr>
+                        <td>{{ project.title }}</td>
+                        <td>{{ project.description }}</td>
+                        <td>{{ project.status }}</td>
+                        <td>{{ project.created_at }}</td>
+                        
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center;">Проекты не найдены</td>
+                </tr>        
+            {% endif %}        
+        </tbody>
+    </table>
+    <div class="center">
+        {% if start >= step %}
+            <a class="nav-button" href="/pages/projects?start={{ start - step }}&stop={{ stop - step }}"> Предыдущая страница</a>
+        {% endif %}
+        <a class="nav-button" href="/pages/projects?start={{ start + step }}&stop={{ stop + step }}">Следующая страница </a>
+    </div>
+
+    <div style="text-align: center;">
+        <a class="url-list", href="/pages">Вернуться на главную страницу</a>
+    </div>
+{% endblock %}

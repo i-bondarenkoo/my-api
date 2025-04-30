@@ -20,7 +20,7 @@ main {
     padding: 12px 15px;
     text-align: center;
 }
-.header-list {
+.header-list-user {
     margin-top: 25px;
 }
 .user-table th {
@@ -49,9 +49,9 @@ main {
     margin-top: 25px;
 }
 .wrapper-header {
-    text-align: center;
+    text-align: left;
     font-size: 25px;
-    color: rgb(42, 190, 37);
+    color: rgb(37, 190, 70);
 }
 .center {
     text-align: center;
@@ -83,8 +83,38 @@ main {
     padding: 10px 20px;
 }
 
-.button-main-menu {
-    text-decoration: none;
-    color: #6e1eb9;
-    display: flex;
+.block-1 {
+    margin-top: 15px;
+    width: 1000px;
+    font-size: 20px;
+    margin: 0 auto;
+
+    padding: 20px;
 }
+
+
+.button-main-menu {
+    display: inline-block; /* позволяет кнопке быть центрированной */
+    color: white;
+    text-decoration: none;
+    background-color: rgb(8, 153, 73);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    width: 250px;
+    margin: 10px 0; /* отступы между кнопками */
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+.button-main-menu:hover {
+    background-color: #c0c0c0;
+}
+.menu-grid {
+    text-align: center;
+}
+
+
+
+
+
