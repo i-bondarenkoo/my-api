@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Form
+from fastapi import APIRouter, HTTPException, Request, Form, status
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -6,7 +6,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db_session
 from app import crud
-from app.schemas.user import CreateUser
+from app.schemas.user import CreateUser, PatchUpdateUser
 
 router = APIRouter(prefix="/pages", tags=["Pages"])
 
@@ -128,6 +128,64 @@ async def make_new_user(
             name="create_user.html",
             context={
                 "error": "❌ Ошибка при создании пользователя. Проверьте введённые данные."
+            },
+            status_code=400,
+        )
+
+
+# изменение данных пользователя
+@router.get("/users/{user_id}/edit", response_class=HTMLResponse)
+async def get_edit_data_user_form(
+    request: Request,
+    user_id: int,
+    session: AsyncSession = Depends(get_db_session),
+):
+    user = await crud.get_user_by_id(user_id=user_id, session=session)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь не найден",
+        )
+    return templates.TemplateResponse(
+        request=request,
+        name="edit_user.html",
+        context={"user": user},
+    )
+
+
+@router.post("/users/{user_id}/edit", response_class=HTMLResponse)
+async def update_user_form_post(
+    request: Request,
+    user_id: int,
+    first_name: str = Form(...),
+    last_name: str = Form(...),
+    email: str = Form(...),
+    session: AsyncSession = Depends(get_db_session),
+):
+    try:
+        user_data = PatchUpdateUser(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+        )
+        update_user = await crud.update_user_patch_crud(
+            user=user_data,
+            user_id=user_id,
+            session=session,
+        )
+        return templates.TemplateResponse(
+            request=request,
+            name="edit_user.html",
+            context={
+                "message": f"Данные пользователя {update_user.first_name} обновлены ^_^ "
+            },
+        )
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="edit_user.html",
+            context={
+                "error": "❌ Ошибка при изменении пользователя. Проверьте введённые данные."
             },
             status_code=400,
         )

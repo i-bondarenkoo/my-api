@@ -7,18 +7,26 @@
     <table class="user-table">
         <thead>
             <tr>
+                <th>ID Пользователя</th>
                 <th>Имя</th>
                 <th>Фамилия</th>
                 <th>Email</th>
+                <th>Действия</th>
             </tr>
         </thead>
         <tbody>
             {% if users %}
                 {% for user in users %}
                     <tr>
+                        <td>{{ user.id }}</td> 
                         <td>{{ user.first_name }}</td>
                         <td>{{ user.last_name }}</td>
                         <td>{{ user.email }}</td>
+                        <td>
+                            <a class="action-link" style="text-align: center;" href="/pages/users/{{ user.id }}/edit">✏️ Изменить</a>
+                                
+                            <a class="action-link" style="text-align: center;" href="/pages/users/{{ user.id }}/delete">❌ Удалить</a>
+                        </td>
                     </tr>
                 {% endfor %}
             {% else %}
