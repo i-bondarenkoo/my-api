@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -91,15 +91,43 @@ async def projects_list(
     )
 
 
-@router.post("/users/create-user", response_class=HTMLResponse)
-async def make_new_user(
+@router.get("/users/create-user", response_class=HTMLResponse)
+async def get_create_user_form(
     request: Request,
-    user_data: CreateUser,
-    session: AsyncSession = Depends(get_db_session),
 ):
-    new_user = await crud.create_user_crud(user=user_data, session=session)
     return templates.TemplateResponse(
         request=request,
         name="create_user.html",
         context={},
     )
+
+
+@router.post("/users/create-user", response_class=HTMLResponse)
+async def make_new_user(
+    request: Request,
+    first_name: str = Form(...),
+    last_name: str = Form(...),
+    email: str = Form(...),
+    session: AsyncSession = Depends(get_db_session),
+):
+    try:
+        user_data = CreateUser(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+        )
+        new_user = await crud.create_user_crud(user_in=user_data, session=session)
+        return templates.TemplateResponse(
+            request=request,
+            name="create_user.html",
+            context={"message": f"Пользователь {new_user.first_name} создан"},
+        )
+    except Exception as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="create_user.html",
+            context={
+                "error": "❌ Ошибка при создании пользователя. Проверьте введённые данные."
+            },
+            status_code=400,
+        )

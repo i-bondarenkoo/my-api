@@ -7,6 +7,23 @@
     <title></title>
 </head>
 <body>
+    {% if message %}
+    <div class="success-message">{{ message }}</div>
+    {% endif %}
+    {% if error %}
+        <div class="error-message">{{ error }}</div>
+    {% endif %}
+    <form method="post" action="/pages/users/create-user">
+        <div class="create-user-block">
+            <input type="text"  name="first_name" placeholder="Имя">
+            <input type="text" name="last_name" placeholder="Фамилия">
+            <input type="text" name="email" placeholder="Email">
+            <button type="submit">Создать пользователя</button>
+        </div>    
+    </form>
+    <div style="text-align: center;">
+        <a class="url-list", href="/pages">Вернуться на главную страницу</a>
+    </div>
     
 </body>
 </html>
