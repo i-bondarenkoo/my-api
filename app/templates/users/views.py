@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Form, status
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -157,35 +157,83 @@ async def get_edit_data_user_form(
 async def update_user_form_post(
     request: Request,
     user_id: int,
-    first_name: str = Form(...),
-    last_name: str = Form(...),
-    email: str = Form(...),
+    first_name: str = Form(None),
+    last_name: str = Form(None),
+    email: str = Form(None),
     session: AsyncSession = Depends(get_db_session),
 ):
     try:
-        user_data = PatchUpdateUser(
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-        )
+        # Создаем словарь только с переданными (не пустыми) значениями
+        update_data = {}
+        if first_name is not None and first_name != "":
+            update_data["first_name"] = first_name
+        if last_name is not None and last_name != "":
+            update_data["last_name"] = last_name
+        if email is not None and email != "":
+            update_data["email"] = email
+
+        # Если ничего не передали для обновления
+        if not update_data:
+            raise ValueError("Не указаны данные для обновления")
+
+        user_data = PatchUpdateUser(**update_data)
+
         update_user = await crud.update_user_patch_crud(
             user=user_data,
             user_id=user_id,
             session=session,
         )
+
         return templates.TemplateResponse(
             request=request,
             name="edit_user.html",
             context={
-                "message": f"Данные пользователя {update_user.first_name} обновлены ^_^ "
+                "user": update_user,
+                "message": f"Данные пользователя {update_user.first_name} обновлены",
             },
         )
     except Exception as e:
+        user = await crud.get_user_by_id(user_id=user_id, session=session)
         return templates.TemplateResponse(
             request=request,
             name="edit_user.html",
-            context={
-                "error": "❌ Ошибка при изменении пользователя. Проверьте введённые данные."
-            },
+            context={"user": user, "error": f"Ошибка: {str(e)}"},
             status_code=400,
         )
+
+
+# удаление пользователя
+@router.get("/users/{user_id}/delete", response_class=HTMLResponse)
+async def get_delete_date_user_form(
+    request: Request,
+    user_id: int,
+    session: AsyncSession = Depends(get_db_session),
+):
+    user = await crud.get_user_by_id(user_id=user_id, session=session)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь не найден",
+        )
+    return templates.TemplateResponse(
+        request=request, name="delete_user.html", context={"user": user}
+    )
+
+
+@router.post("/users/{user_id}/delete", response_class=HTMLResponse)
+async def delete_user_form_post(
+    request: Request,
+    user_id: int,
+    session: AsyncSession = Depends(get_db_session),
+):
+    user = await crud.get_user_by_id(user_id=user_id, session=session)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь не найден",
+        )
+    await crud.delete_user_crud(user_id=user_id, session=session)
+    # Редирект с сообщением об успехе
+    return RedirectResponse(
+        url="/pages/users?message=Пользователь+удалён", status_code=303
+    )

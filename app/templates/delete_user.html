@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Подтверждение удаления</title>
+</head>
+<body>
+    <div class="delete-container">
+        <h2 class="block-header-wrap">Подтвердите удаление</h2>
+        <p class="paragraph-block">
+            Вы точно хотите удалить пользователя <strong>{{ user.first_name }} {{ user.last_name }}</strong>?
+            <br>Это действие нельзя будет отменить.
+        </p>
+        
+        <form method="POST" action="/pages/users/{{ user.id }}/delete">
+            <button type="submit" class="del-btn">Да, удалить</button>
+        </form>
+        
+        <a href="/pages/users" class="cancel-link">Нет, вернуться назад</a>
+    </div>
+</body>
+</html>

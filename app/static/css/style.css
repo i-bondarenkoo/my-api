@@ -176,13 +176,6 @@ main {
     border-radius:  5px;
 }
 
-/* .edit-user-fields{
-    width: 80%;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-} */
 .edit-button{
     text-decoration: none;
     text-align: center;
@@ -193,6 +186,72 @@ main {
     background-color: #a1d413;
 }
 
+.delete-container {
+    margin: 50px auto;
+    width: 90%;
+    max-width: 500px;
+    padding: 30px;
+    background-color: rgb(28, 173, 93);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border: 1px solid #e0e0e0;
+}
 
+/* Заголовок */
+.block-header-wrap {
+    margin: 0 0 20px 0;
+    font-size: 24px;
+    color: black;
+    font-weight: 600;
+}
+
+/* Текст подтверждения */
+.paragraph-block {
+    font-size: 16px;
+    color: black;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+/* Кнопка удаления */
+.del-btn {
+    background-color: #a1d413;
+    color: black;
+    padding: 12px 24px;
+    width: 80%;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 20px;
+}
+
+
+/* Ссылка отмены */
+.cancel-link {
+    background-color: #a1d413;
+    text-decoration: none;
+    color: black;
+    width: 70%;
+    padding: 12px 24px;
+    transition: color 0.3s ease;
+    display: inline-block;
+    margin-top: 10px;
+    border-radius: 6px;
+}
+
+.del-btn:hover {
+
+    background-color: #d8870d;
+    text-decoration: none;
+}
+.cancel-link:hover {
+
+    background-color: #d8870d;
+    text-decoration: none;
+}
 
 
